@@ -1,0 +1,14 @@
+{
+    "name": "agilesearch",
+    "description": "agilesearch",
+    "website": "",
+    "success_url": "/",
+    "addons": ["searchbox"],
+    "env": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+    },
+    "logo": "",
+    "repository": "",
+    "keywords": ["elasticsearch", "node.js", "restful search backend"]
+}
