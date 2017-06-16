@@ -8,6 +8,7 @@ var elastic = Promise.promisifyAll(require('./../elastic/search'));
 var searchService = Promise.promisifyAll(require('./../services/search'));
 var statsService = Promise.promisifyAll(require('./../services/stats'));
 var collectionService = require('./../services/collection');
+var mediaService = require('./../services/media');
 
 /*
  * get specific item
@@ -34,7 +35,9 @@ exports.create = function postItem(req, res, next) {
   var project = req.query.project;
   var processAsync;
 
-  console.log('HORACIO ACA');
+  console.log(req.body);
+
+  //mediaService.getMediaAsync()
 
   if (_.isArray(req.body)) {
     processAsync = dataService.addDocumentsAsync({

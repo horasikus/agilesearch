@@ -23,6 +23,7 @@
     "mongoose": "^4.4.20",
     "morgan": "^1.7.0",
     "nconf": "^0.7.1",
+    "node-youtube-dl": "0.0.2",
     "randomstring": "^1.1.5",
     "redis": "^2.6.0-1",
     "request": "^2.72.0",
@@ -54,5 +55,5 @@
     "start": "node app.js",
     "test": "NODE_ENV=test mocha tests/*"
   },
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
