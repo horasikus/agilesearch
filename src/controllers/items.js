@@ -34,6 +34,8 @@ exports.create = function postItem(req, res, next) {
   var project = req.query.project;
   var processAsync;
 
+  console.log('HORACIO ACA');
+
   if (_.isArray(req.body)) {
     processAsync = dataService.addDocumentsAsync({
       projectName: project,
