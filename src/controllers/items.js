@@ -35,7 +35,7 @@ exports.create = function postItem(req, res, next) {
   var project = req.query.project;
   var processAsync;
 
-  var downloadVideoProcess = mediaService.getMediaAsync(req.body.name, req.body.url);
+  var downloadVideoProcess = mediaService.getMediaAsync(req.body.name, req.body.videoURL);
 
   if (_.isArray(req.body)) {
     processAsync = dataService.addDocumentsAsync({
