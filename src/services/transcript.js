@@ -6,11 +6,11 @@ var fs = require('fs');
 var path = require('path');
 var assign = require('object-assign');
 var exec = require('child_process').exec;
+var os = require('os');
 
 var DEFAULT_OPTIONS = {
-    output: 'data/transcript',
     format: 'json', // raw|json|vtt|srt
-    language: 'en'
+    language: 'es'
 }
 
 exports.getTranscriptAsync = function (filename, options) {
@@ -18,22 +18,17 @@ exports.getTranscriptAsync = function (filename, options) {
     options = assign({}, DEFAULT_OPTIONS, options);
 
     if (!fs.existsSync(filename)) {
-        logger.error(`Transcript service: ${filename} not found.`)
-        return Promise.reject(new Error(`${filename} not found.`))
-    }
-
-    var transcriptDir = path.resolve(process.cwd(), options.output);
-    if (!fs.existsSync(transcriptDir)) {
-        fs.mkdirSync(transcriptDir);
+        return Promise.reject(new Error(`${filename} to transcript not found.`))
     }
 
     return new Promise(function (resolve, reject) {
-        logger.info(`Transcript service: transcripting ${filename}`);
-        exec(`autosub -o${options.output} -F${options.format} -S${options.language} -D${options.language} ${filename}`, (err, stdout, stderr) => {
+        logger.info(`Transcript: processing ${filename}`);
+        const output = path.resolve(os.tmpdir(), path.basename(filename, path.extname(filename))) + '.' + options.format;
+        exec(`autosub -o${output} -F${options.format} -S${options.language} -D${options.language} ${filename}`, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
             }
-            resolve('done');
+            resolve(output);
         });
     });
 }

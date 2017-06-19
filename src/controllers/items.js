@@ -10,6 +10,11 @@ var statsService = Promise.promisifyAll(require('./../services/stats'));
 var collectionService = require('./../services/collection');
 var mediaService = require('./../services/media');
 var transcriptMediaService = require('./../services/transcript');
+var linguabuzzService = require('./../services/linguabuzz');
+var thumbnailsService = require('./../services/thumbnails');
+var async = require('async');
+var fs = require('fs');
+var logger = require('./../../config/logger');
 
 /*
  * get specific item
@@ -34,40 +39,73 @@ exports.get = function getItem(req, res, next) {
 exports.create = function postItem(req, res, next) {
     var name = req.params.name;
     var project = req.query.project;
-    var processAsync;
 
-    var downloadMediaProcess = mediaService.getMediaAsync(req.body.name, req.body.videoURL);
-
-    return downloadMediaProcess.then(function (filename) {
-        var transcriptMediaProcess = transcriptMediaService.getTranscriptAsync(filename);
-
-        transcriptMediaProcess.then(function (result) {
-
-            console.log('transcript', result);
-
-            if (_.isArray(req.body)) {
-                processAsync = dataService.addDocumentsAsync({
-                    projectName: project,
-                    collectionName: name,
-                    body: req.body
-                });
-            } else {
-                processAsync = dataService.addDocumentAsync({
-                    projectName: project,
-                    collectionName: name,
-                    body: req.body
-                });
-            }
-
-            processAsync.then(function (result) {
-                return res.json(result);
-            }).catch(function (result) {
-                return next(result);
+    async.waterfall([
+        // download media.
+        function (cb) {
+            mediaService.getMediaAsync(req.body.videoURL).then(function (filename) {
+                req.body.media = filename;
+                cb(null, filename);
+            }).catch(function (err) {
+                cb(err);
             })
-        })
-    })
-};
+        },
+        // get thumbnail.
+        function (filename, cb) {
+            thumbnailsService.getThumbnailAsync(req.body.videoURL, filename).then(function (thumbnail) {
+                req.body.image = thumbnail;
+                cb(null, filename);
+            }).catch(function (err) {
+                cb(err);
+            })
+        },
+        // get transcription.
+        function (filename, cb) {
+            transcriptMediaService.getTranscriptAsync(filename, {
+                language: req.body.language
+            }).then(function (filename) {
+                cb(null, filename);
+            }).catch(function (err) {
+                cb(err);
+            })
+        },
+        // attach transcription.
+        function (filename, cb) {
+            fs.readFile(filename, 'utf8', function (err, data) {
+                if (err) cb(err);
+                req.body.transcript = JSON.parse(data);
+                cb(null, filename);
+            });
+        },
+        // process transcription with linguabuzz
+        function (filename, cb) {
+            if (req.body.language != 'en') cb(null, '');
+            linguabuzzService.getLinguaAsync(filename).then(function (data) {
+                req.body.linguabuzz = data;
+                cb(null, data);
+            }).catch(function (err) {
+                cb(err);
+            })
+        }
+    ], function (err) {
+        if (err) {
+            logger.error(err);
+            return next(err);
+        }
 
+        logger.info(req.body);
+
+        dataService.addDocumentAsync({
+            projectName: project,
+            collectionName: name,
+            body: req.body
+        }).then(function (result) {
+            return res.json(result);
+        }).catch(function (err) {
+            return next(err);
+        })
+    });
+};
 
 exports.clean = function deleteItem(req, res, next) {
     var name = req.params.name;
