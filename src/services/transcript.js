@@ -5,6 +5,7 @@ var logger = require('./../../config/logger');
 var fs = require('fs');
 var path = require('path');
 var assign = require('object-assign');
+var exec = require('child_process').exec;
 
 var DEFAULT_OPTIONS = {
     output: 'data/transcript',
@@ -16,8 +17,12 @@ exports.getTranscriptAsync = function (filename, options) {
 
     options = assign({}, DEFAULT_OPTIONS, options);
 
-    var transcriptDir = path.resolve(process.cwd(), options.output);
+    if (!fs.existsSync(filename)) {
+        logger.error(`Transcript service: ${filename} not found.`)
+        return Promise.reject(new Error(`${filename} not found.`))
+    }
 
+    var transcriptDir = path.resolve(process.cwd(), options.output);
     if (!fs.existsSync(transcriptDir)) {
         fs.mkdirSync(transcriptDir);
     }
