@@ -34,7 +34,7 @@ exports.getMediaAsync = function (name, url) {
         video.pipe(fs.createWriteStream(tmpFile));
 
         video.on('end', function () {
-            logger.info(`Youtube: filename ${info._filename} downloaded. file: ${tmpFile}`);
+            logger.info(`Youtube: Downloaded ${tmpFile}`);
             return resolve(tmpFile);
         });
 
