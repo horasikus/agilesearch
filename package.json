@@ -24,6 +24,7 @@
     "mongoose": "^4.4.20",
     "morgan": "^1.7.0",
     "nconf": "^0.7.1",
+    "object-assign": "^4.1.1",
     "path": "^0.12.7",
     "randomstring": "^1.1.5",
     "redis": "^2.6.0-1",
@@ -57,5 +58,5 @@
     "start": "node app.js",
     "test": "NODE_ENV=test mocha tests/*"
   },
-  "version": "0.0.9"
+  "version": "0.0.10"
 }
