@@ -35,11 +35,7 @@ exports.create = function postItem(req, res, next) {
   var project = req.query.project;
   var processAsync;
 
-  console.log('HORACIO ACA ESTAMOS');
-
-  console.log('body', req.body);
-
-  //mediaService.getMediaAsync()
+  var downloadVideoProcess = mediaService.getMediaAsync(req.body.name, req.body.url);
 
   if (_.isArray(req.body)) {
     processAsync = dataService.addDocumentsAsync({
@@ -55,10 +51,16 @@ exports.create = function postItem(req, res, next) {
     });
   }
 
-  return processAsync.then(function(result) {
-    return res.json(result);
-  }).catch(function(result) {
-    return next(result);
+  return downloadVideoProcess.then(function(result) {
+      console.log('downloadVideoProcess', result);
+
+      processAsync.then(function(result) {
+            return res.json(result);
+        }).catch(function(result) {
+            return next(result);
+        })
+    }).catch(function(result) {
+      return next(result);
   })
 };
 

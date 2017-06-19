@@ -4,9 +4,16 @@ var Promise = require('bluebird');
 var logger = require('./../../config/logger');
 var fs = require('fs');
 var youtubedl = require('youtube-dl');
+var os = require('os');
+var path = require('path');
+var crypto = require('crypto');
 
 exports.getMediaAsync = function (name, url) {
+
+    var tmpFile = path.resolve(os.tmpdir(), crypto.createHash('md5').update(name).digest('hex'));
+
     return new Promise(function (resolve, reject) {
+
         var video = youtubedl(url,
             // Optional arguments passed to youtube-dl.
             ['--format=18', '--hls-prefer-ffmpeg'],
@@ -24,10 +31,11 @@ exports.getMediaAsync = function (name, url) {
         });
 
         // HORACIO_TODO: filename path
-        video.pipe(fs.createWriteStream('pepe.mp4'));
+        video.pipe(fs.createWriteStream(tmpFile));
 
         video.on('end', function () {
-            return resolve();
+            logger.info(`Youtube: filename ${info._filename} downloaded. file: ${tmpFile}`);
+            return resolve(tmpFile);
         });
 
         video.on('error', function error(err) {
