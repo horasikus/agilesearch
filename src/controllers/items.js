@@ -37,22 +37,22 @@ exports.create = function postItem(req, res, next) {
 
   var downloadVideoProcess = mediaService.getMediaAsync(req.body.name, req.body.videoURL);
 
-  if (_.isArray(req.body)) {
-    processAsync = dataService.addDocumentsAsync({
-      projectName: project,
-      collectionName: name,
-      body: req.body
-    });
-  } else {
-    processAsync = dataService.addDocumentAsync({
-      projectName: project,
-      collectionName: name,
-      body: req.body
-    });
-  }
-
   return downloadVideoProcess.then(function(result) {
       console.log('downloadVideoProcess', result);
+
+      if (_.isArray(req.body)) {
+          processAsync = dataService.addDocumentsAsync({
+              projectName: project,
+              collectionName: name,
+              body: req.body
+          });
+      } else {
+          processAsync = dataService.addDocumentAsync({
+              projectName: project,
+              collectionName: name,
+              body: req.body
+          });
+      }
 
       processAsync.then(function(result) {
             return res.json(result);
