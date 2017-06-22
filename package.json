@@ -7,6 +7,7 @@
     "bluebird": "^3.3.3",
     "body-parser": "^1.13.1",
     "cli": "^0.8.0",
+    "cloudinary": "^1.9.0",
     "colors": "^1.1.2",
     "compression": "^1.5.0",
     "cors": "^2.7.1",
@@ -16,6 +17,7 @@
     "express": "^4.13.3",
     "express-init": "0.0.1",
     "express-limiter": "^1.6.0",
+    "eyes": "^0.1.8",
     "fs-extra": "^0.26.2",
     "ipaddr.js": "^1.2.0",
     "lodash": "^3.10.1",
@@ -33,8 +35,10 @@
     "superagent": "^3.5.2",
     "superagent-retry": "^0.6.0",
     "underscore": "^1.8.3",
+    "util": "^0.10.3",
     "validate.js": "^0.4.0",
     "winston": "^2.2.0",
+    "xml2json": "^0.11.0",
     "youtube-dl": "^1.11.1"
   },
   "description": "agilesearch",
@@ -60,5 +64,5 @@
     "start": "node app.js",
     "test": "NODE_ENV=test mocha tests/*"
   },
-  "version": "0.0.25"
+  "version": "0.0.50"
 }
