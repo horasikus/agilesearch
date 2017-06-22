@@ -45,9 +45,15 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
                 if (err) {
                     return cb(err);
                 }
-                var text = res.text;
-                var match = text.match(/<ETIQUETADO>([^<]*)<\/ETIQUETADO>/);
-                return cb(null, match[1]);
+                try {
+                    var text = res.text;
+                    var match = text.match(/<ETIQUETADO>([^<]*)<\/ETIQUETADO>/);
+                    return cb(null, match[1]);
+                }
+                catch (err) {
+                    logger.error(err);
+                    return cb(err);
+                }
             });
     }
 
@@ -66,10 +72,11 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
 
         async.mapLimit(input, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
-                reject(err);
+                logger.error(err);
+                return reject(err);
             }
-            logger.info(results);
-            resolve(results);
+            eyes.inspector({maxLength: false}).inspect(results);
+            return resolve(results);
         });
     });
 }
@@ -116,20 +123,21 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
 
         async.mapLimit(input, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
-                reject(err);
+                logger.error(err);
+                return reject(err);
             }
             input.forEach(function (item, i) {
                 try {
                     item.analisis = JSON.parse(results[i])['ANALISIS'];
                 }
-                catch (error) {
+                catch (err) {
+                    console.log(err);
                     item.analisis = {};
                 }
             })
 
-            var inspect = eyes.inspector({maxLength: false});
-            inspect(input);
-            resolve(input);
+            eyes.inspector({maxLength: false}).inspect(input);
+            return resolve(input);
         });
     });
 }
