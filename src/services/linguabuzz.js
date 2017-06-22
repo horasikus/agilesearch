@@ -24,7 +24,8 @@ var DEFAULT_PARAMS = {
     Project: '123',
     Option: 'XML',
     Thesaurus: '2000', // 2000: syntax
-    LangIn: '1' // 1:en 2:es 0:not work
+    LangIn: '1', // 1:en 2:es 0:not work
+    LangOut: '1' // 1:en 2:es 0:not work
 }
 
 // http://80.28.211.155/linguabuzz/analizar.aspx?Api_Key=a83992eef8832fc9f96732b8b54996zt&Project=123&Text=la%20funda%20de%20mi%20maravilloso%20iphone%20es%20horrible&Option=XML&Thesaurus=2000

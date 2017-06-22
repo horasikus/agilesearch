@@ -82,7 +82,8 @@ exports.processItemAsync = function (mediaURL, language) {
             else {
                 linguabuzzService.getSyntaxisAsync(itemID, data.transcript, {
                     Thesaurus: '2000',
-                    LangIn: '1'
+                    LangIn: '1',
+                    LangOut: '1'
                 }).then(function (result) {
                     data.linguabuzz = result;
                     cb(null, data);
@@ -95,7 +96,8 @@ exports.processItemAsync = function (mediaURL, language) {
         function processSemantics(data, cb) {
             linguabuzzService.getSemanticsAsync(itemID, data.transcript, {
                 Thesaurus: '573',
-                LangIn: language === 'en' ? '1' : '2'
+                LangIn: language === 'en' ? '1' : '2',
+                LangOut: language === 'en' ? '1' : '2'
             }).then(function (result) {
                 data.transcript = result;
                 cb(null, data);
