@@ -1,13 +1,13 @@
 'use strict';
 
-var logger = require('./../../config/logger');
 var assign = require('object-assign');
 var Promise = require('bluebird');
 var request = require('superagent');
 var async = require('async');
 var parser = require('xml2json');
-var util = require('util');
 var eyes = require('eyes');
+var _ = require('underscore');
+var logger = require('../../config/logger')
 
 require('superagent-retry')(request);
 
@@ -76,13 +76,22 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
                 logger.error(err);
                 return reject(err);
             }
-            eyes.inspector({maxLength: false}).inspect(results);
-            return resolve(results);
+
+            input.forEach(function (item, i) {
+
+                logger.info(`Linguabuzz('${item.content}') => ${results[i]}`);
+
+                if (results[i].length) {
+                    item.syntaxis = results[i].join(' ');
+                }
+            })
+
+            return resolve(input);
         });
     });
 }
 
-// http://80.28.211.155/linguabuzz/analizar.aspx?Api_Key=a83992eef8832fc9f96732b8b54996zt&Project=123&Text=la%20funda%20de%20mi%20maravilloso%20iphone%20es%20horrible&Option=XML&Thesaurus=573&LangIn=1
+// http://80.28.211.155/linguabuzz/analizar.aspx?Api_Key=a83992eef8832fc9f96732b8b54996zt&Project=123&Text=Talking connections that will vastly improve most human activities&Option=XML&Thesaurus=573&LangIn=1&LangOut=1
 exports.getSemanticsAsync = function (itemID, input, params, options) {
 
     options = assign({}, DEFAULT_OPTIONS, options);
@@ -97,15 +106,38 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
             .query({Text: content})
             .timeout(options.timeout)
             .end(function (err, res) {
-                if (err) {
-                    return cb(err);
+                    if (err) {
+                        return cb(err);
+                    }
+
+                    var json = parser.toJson(res.text, {
+                        object: true
+                    });
+
+                    const processOpinion = function (opinion) {
+                        return _.chain(opinion).omit('VALOR').values().map(function (o) {
+                            return _.isObject(o) ? _.chain(o).omit(function (value, key) {
+                                return key.charAt(0) === '$';
+                            }).values().value() : o;
+                        }).flatten().unique().value();
+                    }
+
+                    var results = [];
+                    if (_.isArray(json.ANALISIS.OPINION)) {
+                        _.each(json.ANALISIS.OPINION, function (opinion) {
+                            results.push(processOpinion(opinion));
+                        })
+                    }
+                    else {
+                        results.push(processOpinion(json.ANALISIS.OPINION));
+                    }
+
+                    results = _.chain(results).flatten().unique().value();
+
+                    return cb(null, results);
                 }
-                var xml = res.text;
-
-                var json = parser.toJson(xml);
-
-                return cb(null, json);
-            });
+            )
+        ;
     }
 
     const processContent = function (content, cb) {
@@ -127,17 +159,25 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
                 logger.error(err);
                 return reject(err);
             }
+
             input.forEach(function (item, i) {
-                try {
-                    item.analisis = JSON.parse(results[i])['ANALISIS'];
+                const isValid = function (value) {
+                    return value !== 'No se ha encontrado ningún objeto' &&
+                        value !== 'restaurante genérico' &&
+                        value !== 'Sin Equivalencia' &&
+                        value !== 'Experiencia del Cliente' &&
+                        value !== 'Experiencia del cliente' && !_.isEmpty(value) && !(new RegExp("\\b" + value.toLowerCase().replace(' ', '\\b \\b') + "\\b").test(item.content.toLowerCase()));
                 }
-                catch (err) {
-                    console.log(err);
-                    item.analisis = {};
+
+                results[i] = _.filter(results[i], isValid);
+
+                logger.info(`Linguabuzz('${item.content}') => ${results[i]}`);
+
+                if (results[i].length) {
+                    item.semantics = results[i].join(' ');
                 }
             })
 
-            eyes.inspector({maxLength: false}).inspect(input);
             return resolve(input);
         });
     });

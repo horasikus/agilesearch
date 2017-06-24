@@ -76,7 +76,6 @@ exports.processItemAsync = function (mediaURL, language) {
 
         function processSyntaxis(data, cb) {
             if (language !== 'en') { // only works 'en'
-                data.linguabuzz = '';
                 cb(null, data);
             }
             else {
@@ -85,7 +84,7 @@ exports.processItemAsync = function (mediaURL, language) {
                     LangIn: '1',
                     LangOut: '1'
                 }).then(function (result) {
-                    data.linguabuzz = result;
+                    data.transcript = result;
                     cb(null, data);
                 }).catch(function (err) {
                     cb(err);
@@ -96,8 +95,8 @@ exports.processItemAsync = function (mediaURL, language) {
         function processSemantics(data, cb) {
             linguabuzzService.getSemanticsAsync(itemID, data.transcript, {
                 Thesaurus: '573',
-                LangIn: language === 'en' ? '1' : '2',
-                LangOut: language === 'en' ? '1' : '2'
+                LangIn: language === 'en' ? '7' : '2',
+                LangOut: language === 'en' ? '7' : '2'
             }).then(function (result) {
                 data.transcript = result;
                 cb(null, data);
@@ -113,11 +112,10 @@ exports.processItemAsync = function (mediaURL, language) {
  * get document
  */
 exports.addDocumentAsync = function (data) {
-    return exports.processItemAsync(data.body.videoURL, data.body.language).then(function (result) {
+    exports.processItemAsync(data.body.videoURL, data.body.language).then(function (result) {
         data.body.mediaURL = result.mediaURL;
         data.body.image = result.image;
-        data.body.subtitles = result.transcript;
-        data.body.linguabuzz = result.linguabuzz;
+        data.body.transcript = result.transcript;
         data.body.description = result.description;
 
         collectionService.findCollectionAsync({
@@ -289,7 +287,7 @@ exports.getDocumentAsync = function (data) {
  * @param {String} collectionName
  */
 exports.addDocumentsAsync = function (data) {
-    collectionService.findCollectionAsync({
+    return collectionService.findCollectionAsync({
             name: data.collectionName,
             project: data.projectName
         })
@@ -310,14 +308,14 @@ exports.addDocumentsAsync = function (data) {
                 })
             })
         }).then(function (res) {
-        return _.pick(_.extend(res, {
-            ids: _.map(res.items, function (val) {
-                return val.create._id;
-            }),
-            //project: project,
-            collection: data.collectionName
-        }), 'took', 'errors', 'ids', 'collection');
-    })
+            return _.pick(_.extend(res, {
+                ids: _.map(res.items, function (val) {
+                    return val.create._id;
+                }),
+                //project: project,
+                collection: data.collectionName
+            }), 'took', 'errors', 'ids', 'collection');
+        })
 }
 
 /**

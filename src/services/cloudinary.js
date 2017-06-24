@@ -27,10 +27,10 @@ exports.upload = function (filename, options) {
         logger.info('Uploading to cloudinary');
 
         cloudinary.uploader.upload(filename, function (result) {
-            logger.info(result);
             if (result.error) {
                 return reject(result.error.message)
             }
+            logger.info(result);
             return resolve(result.url)
         }, options)
     })
