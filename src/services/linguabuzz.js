@@ -71,6 +71,8 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
 
         logger.info('Processing syntaxis with linguabuzz');
 
+        input.metas = input.metas || '';
+
         async.mapLimit(input, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
                 logger.error(err);
@@ -83,6 +85,7 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
 
                 if (results[i].length) {
                     item.syntaxis = results[i];
+                    input.metas.concat(' ').concat(item.syntaxis);
                 }
             })
 
@@ -160,6 +163,8 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
                 return reject(err);
             }
 
+            input.metas = input.metas || '';
+
             input.forEach(function (item, i) {
                 const isValid = function (value) {
                     return value !== 'No se ha encontrado ningún objeto' &&
@@ -175,6 +180,7 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
 
                 if (results[i].length) {
                     item.semantics = results[i].join(' ');
+                    input.metas.concat(' ').concat(item.semantics);
                 }
             })
 

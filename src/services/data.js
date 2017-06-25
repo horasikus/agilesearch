@@ -117,6 +117,7 @@ exports.addDocumentAsync = function (data) {
         data.body.image = result.image;
         data.body.transcript = result.transcript;
         data.body.description = result.description;
+        data.body.metas = result.metas;
 
         collectionService.findCollectionAsync({
                 name: data.collectionName,
