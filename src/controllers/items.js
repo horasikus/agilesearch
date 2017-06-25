@@ -32,7 +32,9 @@ exports.get = function getItem(req, res, next) {
 exports.create = function postItem(req, res, next) {
     var name = req.params.name;
     var project = req.query.project;
-    
+
+    res.json({});
+
     if (_.isArray(req.body)) {
         dataService.addDocumentsAsync({
             projectName: project,
@@ -46,8 +48,6 @@ exports.create = function postItem(req, res, next) {
             body: req.body
         });
     }
-
-    return res.json({});
 };
 
 exports.clean = function deleteItem(req, res, next) {

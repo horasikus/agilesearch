@@ -82,7 +82,7 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
                 logger.info(`Linguabuzz('${item.content}') => ${results[i]}`);
 
                 if (results[i].length) {
-                    item.syntaxis = results[i].join(' ');
+                    item.syntaxis = results[i];
                 }
             })
 
