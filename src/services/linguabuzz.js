@@ -29,7 +29,7 @@ var DEFAULT_PARAMS = {
 }
 
 // http://80.28.211.155/linguabuzz/analizar.aspx?Api_Key=a83992eef8832fc9f96732b8b54996zt&Project=123&Text=la%20funda%20de%20mi%20maravilloso%20iphone%20es%20horrible&Option=XML&Thesaurus=2000
-exports.getSyntaxisAsync = function (itemID, input, params, options) {
+exports.getSyntaxisAsync = function (itemID, data, params, options) {
 
     options = assign({}, DEFAULT_OPTIONS, options);
 
@@ -71,31 +71,31 @@ exports.getSyntaxisAsync = function (itemID, input, params, options) {
 
         logger.info('Processing syntaxis with linguabuzz');
 
-        input.metas = input.metas || '';
+        data.metas = data.metas || '';
 
-        async.mapLimit(input, options.limitConcurrent, processContent, function (err, results) {
+        async.mapLimit(data.transcript, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
                 logger.error(err);
                 return reject(err);
             }
 
-            input.forEach(function (item, i) {
+            data.transcript.forEach(function (item, i) {
 
                 logger.info(`Linguabuzz('${item.content}') => ${results[i]}`);
 
                 if (results[i].length) {
                     item.syntaxis = results[i];
-                    input.metas.concat(' ').concat(item.syntaxis);
+                    data.metas.concat(' ').concat(item.syntaxis);
                 }
             })
 
-            return resolve(input);
+            return resolve(data);
         });
     });
 }
 
 // http://80.28.211.155/linguabuzz/analizar.aspx?Api_Key=a83992eef8832fc9f96732b8b54996zt&Project=123&Text=Talking connections that will vastly improve most human activities&Option=XML&Thesaurus=573&LangIn=1&LangOut=1
-exports.getSemanticsAsync = function (itemID, input, params, options) {
+exports.getSemanticsAsync = function (itemID, data, params, options) {
 
     options = assign({}, DEFAULT_OPTIONS, options);
 
@@ -157,21 +157,21 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
 
         logger.info('Processing semantics with linguabuzz');
 
-        async.mapLimit(input, options.limitConcurrent, processContent, function (err, results) {
+        async.mapLimit(data.transcript, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
                 logger.error(err);
                 return reject(err);
             }
 
-            input.metas = input.metas || '';
+            data.metas = data.metas || '';
 
-            input.forEach(function (item, i) {
+            data.transcript.forEach(function (item, i) {
                 const isValid = function (value) {
                     return value !== 'No se ha encontrado ningún objeto' &&
                         value !== 'restaurante genérico' &&
                         value !== 'Sin Equivalencia' &&
                         value !== 'Experiencia del Cliente' &&
-                        value !== 'Experiencia del cliente' && !_.isEmpty(value) && !(new RegExp("\\b" + value.toLowerCase().replace(' ', '\\b \\b') + "\\b").test(item.content.toLowerCase()));
+                        value !== 'Experiencia del cliente' && !_.isEmpty(value) && !(new RegExp("\\b" + value.replace(/[^’'0-9a-z ]/gi, '').toLowerCase().replace(' ', '\\b \\b') + "\\b").test(item.content.replace.(/[^’'0-9a-z ]/gi, '').toLowerCase()));
                 }
 
                 results[i] = _.filter(results[i], isValid);
@@ -180,11 +180,11 @@ exports.getSemanticsAsync = function (itemID, input, params, options) {
 
                 if (results[i].length) {
                     item.semantics = results[i].join(' ');
-                    input.metas.concat(' ').concat(item.semantics);
+                    data.metas.concat(' ').concat(item.semantics);
                 }
             })
 
-            return resolve(input);
+            return resolve(data);
         });
     });
 }

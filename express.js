@@ -20,6 +20,7 @@ app.use(gzip({treshold: 512}));
 app.use(bodyParser.json({
   limit: '4mb'
 }));
+app.timeout = 600000;
 
 app.use(cors());
 app.use(config.server.prefix || apiPrefix, router);

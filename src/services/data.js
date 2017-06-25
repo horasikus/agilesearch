@@ -79,12 +79,11 @@ exports.processItemAsync = function (mediaURL, language) {
                 cb(null, data);
             }
             else {
-                linguabuzzService.getSyntaxisAsync(itemID, data.transcript, {
+                linguabuzzService.getSyntaxisAsync(itemID, data, {
                     Thesaurus: '2000',
                     LangIn: '1',
                     LangOut: '1'
-                }).then(function (result) {
-                    data.transcript = result;
+                }).then(function (data) {
                     cb(null, data);
                 }).catch(function (err) {
                     cb(err);
@@ -93,12 +92,11 @@ exports.processItemAsync = function (mediaURL, language) {
         }
 
         function processSemantics(data, cb) {
-            linguabuzzService.getSemanticsAsync(itemID, data.transcript, {
+            linguabuzzService.getSemanticsAsync(itemID, data, {
                 Thesaurus: '573',
                 LangIn: language === 'en' ? '7' : '2',
                 LangOut: language === 'en' ? '7' : '2'
-            }).then(function (result) {
-                data.transcript = result;
+            }).then(function (data) {
                 cb(null, data);
             }).catch(function (err) {
                 cb(err);
