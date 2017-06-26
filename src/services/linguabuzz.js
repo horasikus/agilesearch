@@ -71,8 +71,6 @@ exports.getSyntaxisAsync = function (itemID, data, params, options) {
 
         logger.info('Processing syntaxis with linguabuzz');
 
-        data.metas = data.metas || '';
-
         async.mapLimit(data.transcript, options.limitConcurrent, processContent, function (err, results) {
             if (err) {
                 logger.error(err);
@@ -85,7 +83,6 @@ exports.getSyntaxisAsync = function (itemID, data, params, options) {
 
                 if (results[i].length) {
                     item.syntaxis = results[i];
-                    data.metas.concat(' ').concat(item.syntaxis);
                 }
             })
 
@@ -171,7 +168,7 @@ exports.getSemanticsAsync = function (itemID, data, params, options) {
                         value !== 'restaurante genérico' &&
                         value !== 'Sin Equivalencia' &&
                         value !== 'Experiencia del Cliente' &&
-                        value !== 'Experiencia del cliente' && !_.isEmpty(value) && !(new RegExp("\\b" + value.replace(/[^’'0-9a-z ]/gi, '').toLowerCase().replace(' ', '\\b \\b') + "\\b").test(item.content.replace.(/[^’'0-9a-z ]/gi, '').toLowerCase()));
+                        value !== 'Experiencia del cliente' && !_.isEmpty(value) && !(new RegExp("\\b" + value.replace(/[^’'0-9a-z ]/gi, '').toLowerCase().replace(' ', '\\b \\b') + "\\b").test(item.content.replace(/[^’'0-9a-z ]/gi, '').toLowerCase()));
                 }
 
                 results[i] = _.filter(results[i], isValid);
@@ -180,7 +177,7 @@ exports.getSemanticsAsync = function (itemID, data, params, options) {
 
                 if (results[i].length) {
                     item.semantics = results[i].join(' ');
-                    data.metas.concat(' ').concat(item.semantics);
+                    data.metas = data.metas.concat(' ').concat(item.semantics);
                 }
             })
 

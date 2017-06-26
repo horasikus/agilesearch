@@ -27,7 +27,7 @@ itemsapi.start(function serverStart(serverInstance) {
 
   return statusHelper.elasticsearch(config.elasticsearch.host)
   .then(function(result) {
-    logger.info('ItemsAPI started!'.green)
+    logger.info('AgileSearch started!'.green)
 
     if (result.elasticsearch_status === 200) {
       if (result.version >= '2.0') {
